@@ -1,0 +1,53 @@
+{
+  "name": "vscode-source-map",
+  "displayName": "vscode-source-map",
+  "description": "vscode-source-map for VS Code",
+  "version": "0.1.0",
+  "publisher": "larshp",
+  "repository": "https://github.com/larshp/vscode-source-map",
+  "engines": {
+    "vscode": "^1.34.0"
+  },
+  "categories": [
+    "Visualization"
+  ],
+  "keywords": [
+    "source-map"
+  ],
+  "activationEvents": [
+    "onCommand:vscode-source-map.showMap"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "vscode-source-map.showMap",
+        "title": "Show source-map"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "when": "resourceExtname == .map",
+          "command": "vscode-source-map.showMap",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "test": "npm run lint && npm run compile",
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "lint": "eslint . --ext .ts,.tsx",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^16.4.9",
+    "@types/vscode": "^1.58.1",
+    "@typescript-eslint/eslint-plugin": "^4.28.5",
+    "@typescript-eslint/parser": "^4.28.5",
+    "eslint": "^7.32.0",
+    "typescript": "^4.3.5"
+  }
+}
