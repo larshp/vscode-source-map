@@ -1,8 +1,6 @@
 import * as vscode from 'vscode';
+import { Panel } from './panel';
 
 export function activate(context: vscode.ExtensionContext) {
-	const disposable = vscode.commands.registerCommand('vscode-source-map.showMap', () => {
-		vscode.window.showInformationMessage('Hello World!');
-	});
-	context.subscriptions.push(disposable);
+  new Panel().register(context);
 }

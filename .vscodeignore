@@ -1,0 +1,5 @@
+examples
+.vscode/**
+.github/**
+.gitignore
+tsconfig.json
