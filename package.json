@@ -8,6 +8,7 @@
   "engines": {
     "vscode": "^1.58.1"
   },
+  "preview": true,
   "categories": [
     "Visualization"
   ],

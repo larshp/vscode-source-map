@@ -3,14 +3,86 @@ import { Utils } from 'vscode-uri';
 import * as sourceMap from "source-map";
 import { ExtensionContext} from "vscode";
 
+let json: sourceMap.RawSourceMap | undefined = undefined;
+let channel: vscode.OutputChannel | undefined = undefined;
+let consumer: sourceMap.BasicSourceMapConsumer | undefined = undefined;
+const blue = vscode.window.createTextEditorDecorationType({outline: "1px solid blue"});
+const red = vscode.window.createTextEditorDecorationType({outline: "1px solid red"});
+
+export class HoverProvider implements vscode.HoverProvider {
+  public provideHover(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): vscode.ProviderResult<vscode.Hover> {
+    channel?.appendLine("hover: " + document.uri + " " + position.line + ":" + position.character);
+
+    const decorations: vscode.DecorationOptions[] = [];
+    const isSource = json?.sources.some(e => e === Utils.basename(document.uri));
+    if (isSource === true) {
+      channel?.appendLine("source file hover");
+      const pos: sourceMap.MappedPosition = {
+        source: "indentation.ts",
+        line: position.line + 1,
+        column: position.character,
+      };
+      const found = consumer?.allGeneratedPositionsFor(pos);
+      channel?.appendLine("found: " + found?.length);
+      for (const f of found || []) {
+        if (f.line === null || f.column === null || f.lastColumn === null) {
+          continue;
+        }
+        channel?.appendLine(JSON.stringify(f));
+        decorations.push({range: new vscode.Range(
+          new vscode.Position(f.line-1, f.column),
+          new vscode.Position(f.line-1, f.lastColumn+1))}
+        );
+      }
+
+      const editors = vscode.window.visibleTextEditors;
+      for (const editor of editors) {
+        if (Utils.basename(editor.document.uri) === json?.file) {
+          editor.setDecorations(blue, decorations);
+        } else {
+          editor.setDecorations(blue, []);
+        }
+      }
+    } else if (Utils.basename(document.uri) === json?.file) {
+      channel?.appendLine("generated file hover");
+      const pos: sourceMap.Position = {
+        line: position.line + 1,
+        column: position.character,
+      };
+      const found = consumer?.originalPositionFor(pos);
+      channel?.appendLine("found: " + JSON.stringify(found));
+      if (found && found.line && found.column) {
+        decorations.push({range: new vscode.Range(
+          new vscode.Position(found.line-1, found.column),
+          new vscode.Position(found.line-1, found.column+1))}
+        );
+      }
+
+      const editors = vscode.window.visibleTextEditors;
+      for (const editor of editors) {
+        if (Utils.basename(editor.document.uri) === found?.source) {
+          editor.setDecorations(red, decorations);
+        } else {
+          editor.setDecorations(red, []);
+        }
+      }
+
+    } else {
+      channel?.appendLine("File is not valid for opened map");
+    }
+
+    return undefined;
+  }
+}
+
 export class Panel {
   private helpPanel: vscode.WebviewPanel | undefined;
-  private json: sourceMap.RawSourceMap | undefined;
-  private channel: vscode.OutputChannel | undefined;
 
   public register(context: ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand("vscode-source-map.showMap", this.show.bind(this)));
-    this.channel = vscode.window.createOutputChannel("vscode-source-map");
+    channel = vscode.window.createOutputChannel("vscode-source-map");
+
+    vscode.languages.registerHoverProvider('*', new HoverProvider());
   }
 
   public buildHelp(html: string): string {
@@ -32,12 +104,14 @@ export class Panel {
     }
   }
 
-  public parsed(consumer: sourceMap.BasicSourceMapConsumer) {
+  public parsed(c: sourceMap.BasicSourceMapConsumer) {
+    consumer = c;
+    consumer?.computeColumnSpans();
     vscode.window.showInformationMessage('Parsed');
 
-    let html = `version: ${this.json?.version}<br>
-    file: ${this.json?.file}<br>
-    sourceRoot: ${this.json?.sourceRoot}<br>
+    let html = `version: ${json?.version}<br>
+    file: ${json?.file}<br>
+    sourceRoot: ${json?.sourceRoot}<br>
     <hr>
     <table border="1">
     <tr>
@@ -51,7 +125,7 @@ export class Panel {
 
     let count = 1;
     consumer.eachMapping((m) => {
-      this.channel?.appendLine(count + ": " + m.name);
+      channel?.appendLine(count + ": " + m.name);
 
       html += `<tr>
         <td>${m.source}</td>
@@ -69,7 +143,6 @@ export class Panel {
     if (this.helpPanel) {
       this.helpPanel.webview.html = this.buildHelp(html);
     }
-    consumer.destroy();
   }
 
   public show() {
@@ -91,13 +164,19 @@ export class Panel {
     }
 
     try {
-      this.json = JSON.parse(editor.document.getText());
+      if (consumer) {
+        consumer.destroy();
+      }
+      consumer = undefined;
+      json = undefined;
+
+      json = JSON.parse(editor.document.getText());
       this.helpPanel.webview.html = this.buildHelp("loading " + Utils.basename(editor.document.uri));
 
       const base = Utils.dirname(editor.document.uri);
-      this.channel?.appendLine("Basedir: " + base);
+      channel?.appendLine("Basedir: " + base);
 
-      new sourceMap.SourceMapConsumer(this.json!).then(this.parsed.bind(this));
+      new sourceMap.SourceMapConsumer(json!).then(this.parsed.bind(this));
     } catch (e) {
       this.helpPanel.webview.html = this.buildHelp("JSON Error: " + e);
     }
