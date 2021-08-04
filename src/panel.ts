@@ -6,7 +6,7 @@ import { ExtensionContext} from "vscode";
 let json: sourceMap.RawSourceMap | undefined = undefined;
 let channel: vscode.OutputChannel | undefined = undefined;
 let consumer: sourceMap.BasicSourceMapConsumer | undefined = undefined;
-const blue = vscode.window.createTextEditorDecorationType({outline: "1px solid blue"});
+const green = vscode.window.createTextEditorDecorationType({outline: "1px solid green"});
 const red = vscode.window.createTextEditorDecorationType({outline: "1px solid red"});
 
 export class HoverProvider implements vscode.HoverProvider {
@@ -18,7 +18,7 @@ export class HoverProvider implements vscode.HoverProvider {
     if (isSource === true) {
       channel?.appendLine("source file hover");
       const pos: sourceMap.MappedPosition = {
-        source: "indentation.ts",
+        source: json?.sources[0] || "",
         line: position.line + 1,
         column: position.character,
       };
@@ -38,9 +38,9 @@ export class HoverProvider implements vscode.HoverProvider {
       const editors = vscode.window.visibleTextEditors;
       for (const editor of editors) {
         if (Utils.basename(editor.document.uri) === json?.file) {
-          editor.setDecorations(blue, decorations);
+          editor.setDecorations(green, decorations);
         } else {
-          editor.setDecorations(blue, []);
+          editor.setDecorations(green, []);
         }
       }
     } else if (Utils.basename(document.uri) === json?.file) {
