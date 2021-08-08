@@ -6,7 +6,7 @@
   "publisher": "larshp",
   "repository": "https://github.com/larshp/vscode-source-map",
   "engines": {
-    "vscode": "^1.58.1"
+    "vscode": "^1.59.0"
   },
   "categories": [
     "Visualization"
