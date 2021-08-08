@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { Utils } from 'vscode-uri';
+import { URI, Utils } from 'vscode-uri';
 import * as sourceMap from "source-map";
 import { ExtensionContext} from "vscode";
 
@@ -14,7 +14,7 @@ export class HoverProvider implements vscode.HoverProvider {
     channel?.appendLine("hover: " + document.uri + " " + position.line + ":" + position.character);
 
     const decorations: vscode.DecorationOptions[] = [];
-    const isSource = json?.sources.some(e => e === Utils.basename(document.uri));
+    const isSource = json?.sources.some(e => Utils.basename(URI.file(e)) === Utils.basename(document.uri));
     if (isSource === true) {
       channel?.appendLine("source file hover");
       const pos: sourceMap.MappedPosition = {
@@ -23,7 +23,7 @@ export class HoverProvider implements vscode.HoverProvider {
         column: position.character,
       };
       const found = consumer?.allGeneratedPositionsFor(pos);
-      channel?.appendLine("found: " + found?.length);
+      channel?.appendLine("found: " + found?.length + " positions");
       for (const f of found || []) {
         if (f.line === null || f.column === null || f.lastColumn === null) {
           continue;
