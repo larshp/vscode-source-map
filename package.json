@@ -46,6 +46,7 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "lint": "eslint . --ext .ts,.tsx",
+    "chrome": "npm run compile && vscode-test-web --browserType=chromium --extensionDevelopmentPath=. --folder-uri=file:///C:/Users/larsh/git/vscode-source-map/examples/",
     "watch": "tsc -watch -p ./"
   },
   "devDependencies": {
@@ -53,6 +54,7 @@
     "@types/vscode": "^1.59.0",
     "@typescript-eslint/eslint-plugin": "^4.29.1",
     "@typescript-eslint/parser": "^4.29.1",
+    "@vscode/test-web": "0.0.7",
     "eslint": "^7.32.0",
     "typescript": "^4.3.5"
   },
