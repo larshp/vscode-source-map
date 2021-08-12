@@ -23,6 +23,7 @@
     "onCommand:vscode-source-map.showMap"
   ],
   "main": "./out/extension.js",
+  "browser": "./out/extension.js",
   "contributes": {
     "commands": [
       {
@@ -48,10 +49,10 @@
     "watch": "tsc -watch -p ./"
   },
   "devDependencies": {
-    "@types/node": "^16.4.13",
+    "@types/node": "^16.6.0",
     "@types/vscode": "^1.59.0",
-    "@typescript-eslint/eslint-plugin": "^4.29.0",
-    "@typescript-eslint/parser": "^4.29.0",
+    "@typescript-eslint/eslint-plugin": "^4.29.1",
+    "@typescript-eslint/parser": "^4.29.1",
     "eslint": "^7.32.0",
     "typescript": "^4.3.5"
   },
