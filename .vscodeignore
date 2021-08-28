@@ -3,3 +3,5 @@ examples
 .github/**
 .gitignore
 tsconfig.json
+web-extension.webpack.config.js
+.vscode-test-web/
