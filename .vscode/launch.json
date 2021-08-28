@@ -1,7 +1,7 @@
 {
 	"version": "0.2.0",
 	"configurations": [{
-			"name": "Run Extension, Native",
+			"name": "Run as Native",
 			"type": "extensionHost",
 			"request": "launch",
 			"runtimeExecutable": "${execPath}",
@@ -14,7 +14,7 @@
 			"preLaunchTask": "npm: watch"
 		},
 		{
-			"name": "Run Extension, Web",
+			"name": "Run as Web",
 			"type": "pwa-extensionHost",
 			"debugWebWorkerHost": true,
 			"request": "launch",
@@ -23,9 +23,9 @@
 				"--extensionDevelopmentKind=web"
 			],
 			"outFiles": [
-				"${workspaceRoot}/out/**/*.js"
+				"${workspaceFolder}/out-web/**/*.js"
 			],
-			"preLaunchTask": "npm: watch"
+			"preLaunchTask": "npm: watch-web"
 		},
 	]
 }

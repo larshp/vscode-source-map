@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as vscode from 'vscode';
-import { URI, Utils } from 'vscode-uri';
+import {URI, Utils} from 'vscode-uri';
 import * as sourceMap from "source-map";
-import { ExtensionContext} from "vscode";
+import {ExtensionContext} from "vscode";
 
 let json: sourceMap.RawSourceMap | undefined = undefined;
 let channel: vscode.OutputChannel | undefined = undefined;
@@ -105,9 +107,9 @@ export class Panel {
   }
 
   public parsed(c: sourceMap.BasicSourceMapConsumer) {
+    vscode.window.showInformationMessage('Parsed');
     consumer = c;
     consumer?.computeColumnSpans();
-    vscode.window.showInformationMessage('Parsed');
 
     let html = `version: ${json?.version}<br>
     file: ${json?.file}<br>
@@ -145,7 +147,7 @@ export class Panel {
     }
   }
 
-  public show() {
+  public async show() {
     const editor = vscode.window.activeTextEditor;
     if (editor === undefined) {
       return;
@@ -175,6 +177,16 @@ export class Panel {
 
       const base = Utils.dirname(editor.document.uri);
       channel?.appendLine("Basedir: " + base);
+
+      if (vscode.env.uiKind === vscode.UIKind.Web) {
+        channel?.appendLine("Running in web");
+        // @ts-ignore
+        sourceMap.SourceMapConsumer.initialize({
+          'lib/mappings.wasm': "https://unpkg.com/source-map@0.7.3/lib/mappings.wasm",
+        });
+      } else {
+        channel?.appendLine("Running as native");
+      }
 
       new sourceMap.SourceMapConsumer(json!).then(this.parsed.bind(this));
     } catch (e) {

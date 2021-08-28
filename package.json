@@ -23,7 +23,7 @@
     "onCommand:vscode-source-map.showMap"
   ],
   "main": "./out/extension.js",
-  "browser": "./out/extension.js",
+  "browser": "./out-web/extension.js",
   "contributes": {
     "commands": [
       {
@@ -43,20 +43,28 @@
   },
   "scripts": {
     "test": "npm run lint && npm run compile",
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "npm run compile && npm run package-web",
+    "compile-web": "webpack --config ./web-extension.webpack.config.js",
+    "watch-web": "webpack --watch --config ./web-extension.webpack.config.js",
+    "package-web": "webpack --mode production --devtool hidden-source-map --config ./web-extension.webpack.config.js",
     "compile": "tsc -p ./",
     "lint": "eslint . --ext .ts,.tsx",
-    "chrome": "npm run compile && vscode-test-web --browserType=chromium --extensionDevelopmentPath=. --folder-uri=file:///C:/Users/larsh/git/vscode-source-map/examples/",
+    "chrome": "npm run compile && vscode-test-web --browserType=chromium --extensionDevelopmentPath=.",
     "watch": "tsc -watch -p ./"
   },
   "devDependencies": {
     "@types/node": "^16.7.4",
     "@types/vscode": "^1.59.0",
+    "@types/webpack-env": "^1.16.2",
     "@typescript-eslint/eslint-plugin": "^4.29.3",
     "@typescript-eslint/parser": "^4.29.3",
     "@vscode/test-web": "^0.0.8",
     "eslint": "^7.32.0",
-    "typescript": "^4.4.2"
+    "process": "^0.11.10",
+    "ts-loader": "^9.2.5",
+    "typescript": "^4.4.2",
+    "webpack-cli": "^4.8.0",
+    "webpack": "^5.51.1"
   },
   "dependencies": {
     "source-map": "^0.7.3",
