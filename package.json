@@ -2,7 +2,7 @@
   "name": "vscode-source-map",
   "displayName": "vscode-source-map",
   "description": "vscode-source-map for VS Code",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "publisher": "larshp",
   "repository": "https://github.com/larshp/vscode-source-map",
   "engines": {
